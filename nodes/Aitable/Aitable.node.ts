@@ -42,6 +42,10 @@ export class Aitable implements INodeType {
                         name: 'Node',
                         value: 'node',
                     },
+                    {
+                        name: 'Datasheet',
+                        value: 'datasheet',
+                    },
                 ],
                 default: 'space',
             },
@@ -89,6 +93,25 @@ export class Aitable implements INodeType {
                 default: 'getNodes',
             },
             {
+                displayName: 'Operation',
+                name: 'operation',
+                type: 'options',
+                noDataExpression: true,
+                displayOptions: {
+                    show: {
+                        resource: ['datasheet'],
+                    },
+                },
+                options: [
+                    {
+                        name: 'Get All Records',
+                        value: 'getAllRecords',
+                        action: 'Get all records from a datasheet',
+                    },
+                ],
+                default: 'getAllRecords',
+            },
+            {
                 displayName: 'Space ID',
                 name: 'spaceId',
                 type: 'string',
@@ -100,6 +123,34 @@ export class Aitable implements INodeType {
                     },
                 },
                 description: 'The ID of the space',
+            },
+            {
+                displayName: 'Datasheet ID',
+                name: 'datasheetId',
+                type: 'string',
+                default: '',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['datasheet'],
+                        operation: ['getAllRecords'],
+                    },
+                },
+                description: 'The ID of the datasheet',
+            },
+            {
+                displayName: 'View ID',
+                name: 'viewId',
+                type: 'string',
+                default: '',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['datasheet'],
+                        operation: ['getAllRecords'],
+                    },
+                },
+                description: 'The ID of the view',
             },
         ],
     };
@@ -140,6 +191,12 @@ export class Aitable implements INodeType {
                         options.uri = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
                     } else if (operation === 'searchNodes') {
                         options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
+                    }
+                } else if (resource === 'datasheet') {
+                    if (operation === 'getAllRecords') {
+                        const datasheetId = this.getNodeParameter('datasheetId', i) as string;
+                        const viewId = this.getNodeParameter('viewId', i) as string;
+                        options.uri = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
                     }
                 }
 
