@@ -97,32 +97,6 @@ class Aitable {
                     },
                     description: 'The ID of the space',
                 },
-                {
-                    displayName: 'Type',
-                    name: 'type',
-                    type: 'string',
-                    default: '',
-                    displayOptions: {
-                        show: {
-                            resource: ['node'],
-                            operation: ['searchNodes'],
-                        },
-                    },
-                    description: 'The type of node to search for',
-                },
-                {
-                    displayName: 'Permissions',
-                    name: 'permissions',
-                    type: 'string',
-                    default: '',
-                    displayOptions: {
-                        show: {
-                            resource: ['node'],
-                            operation: ['searchNodes'],
-                        },
-                    },
-                    description: 'Comma-separated list of permissions',
-                },
             ],
         };
     }
@@ -158,14 +132,7 @@ class Aitable {
                         options.uri = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
                     }
                     else if (operation === 'searchNodes') {
-                        const type = this.getNodeParameter('type', i);
-                        const permissions = this.getNodeParameter('permissions', i);
-                        const queryParams = new URLSearchParams();
-                        if (type)
-                            queryParams.append('type', type);
-                        if (permissions)
-                            queryParams.append('permissions', permissions);
-                        options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?${queryParams.toString()}`;
+                        options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
                     }
                 }
                 if (!options.uri) {

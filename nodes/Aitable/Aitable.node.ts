@@ -5,8 +5,6 @@ import {
     INodeTypeDescription,
     NodeApiError,
     NodeOperationError,
-    ILoadOptionsFunctions,
-    INodePropertyOptions,
 } from 'n8n-workflow';
 
 export class Aitable implements INodeType {
@@ -103,32 +101,6 @@ export class Aitable implements INodeType {
                 },
                 description: 'The ID of the space',
             },
-            {
-                displayName: 'Type',
-                name: 'type',
-                type: 'string',
-                default: '',
-                displayOptions: {
-                    show: {
-                        resource: ['node'],
-                        operation: ['searchNodes'],
-                    },
-                },
-                description: 'The type of node to search for',
-            },
-            {
-                displayName: 'Permissions',
-                name: 'permissions',
-                type: 'string',
-                default: '',
-                displayOptions: {
-                    show: {
-                        resource: ['node'],
-                        operation: ['searchNodes'],
-                    },
-                },
-                description: 'Comma-separated list of permissions',
-            },
         ],
     };
 
@@ -167,14 +139,7 @@ export class Aitable implements INodeType {
                     if (operation === 'getNodes') {
                         options.uri = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
                     } else if (operation === 'searchNodes') {
-                        const type = this.getNodeParameter('type', i) as string;
-                        const permissions = this.getNodeParameter('permissions', i) as string;
-
-                        const queryParams = new URLSearchParams();
-                        if (type) queryParams.append('type', type);
-                        if (permissions) queryParams.append('permissions', permissions);
-
-                        options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?${queryParams.toString()}`;
+                        options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
                     }
                 }
 
