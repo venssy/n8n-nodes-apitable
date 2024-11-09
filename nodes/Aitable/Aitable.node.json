@@ -1,20 +1,20 @@
 {
-  "node": "n8n-nodes-base.Aitable",
-  "nodeVersion": "1.0",
-  "codexVersion": "1.0",
-  "categories": [
-    "Miscellaneous"
-  ],
-  "resources": {
-    "credentialDocumentation": [
-      {
-        "url": ""
-      }
+    "node": "n8n-nodes-base.aitable",
+    "nodeVersion": "1.0",
+    "codexVersion": "1.0",
+    "categories": [
+        "Data & Storage"
     ],
-    "primaryDocumentation": [
-      {
-        "url": ""
-      }
-    ]
-  }
+    "resources": {
+        "credentialDocumentation": [
+            {
+                "url": "https://developers.aitable.ai/api/quick-start"
+            }
+        ],
+        "primaryDocumentation": [
+            {
+                "url": "https://developers.aitable.ai/api/quick-start"
+            }
+        ]
+    }
 }
