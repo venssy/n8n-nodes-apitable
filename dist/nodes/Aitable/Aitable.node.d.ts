@@ -4,6 +4,8 @@ export declare class Aitable implements INodeType {
     methods: {
         loadOptions: {
             getSpaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]>;
+            getDatasheets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]>;
+            getViews(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]>;
         };
     };
     execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]>;
