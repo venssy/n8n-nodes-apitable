@@ -34,6 +34,7 @@ class Aitable {
                         { name: 'View', value: 'view' },
                         { name: 'Space', value: 'space' },
                         { name: 'Node', value: 'node' },
+                        { name: 'Field', value: 'field' },
                     ],
                     default: 'record',
                 },
@@ -43,9 +44,7 @@ class Aitable {
                     type: 'options',
                     noDataExpression: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record'],
-                        },
+                        show: { resource: ['record'] },
                     },
                     options: [
                         { name: 'Get Records', value: 'getRecords', action: 'Get records from a datasheet' },
@@ -61,9 +60,7 @@ class Aitable {
                     type: 'options',
                     noDataExpression: true,
                     displayOptions: {
-                        show: {
-                            resource: ['view'],
-                        },
+                        show: { resource: ['view'] },
                     },
                     options: [
                         { name: 'Get View', value: 'getView', action: 'Get view of a datasheet' },
@@ -76,9 +73,7 @@ class Aitable {
                     type: 'options',
                     noDataExpression: true,
                     displayOptions: {
-                        show: {
-                            resource: ['space'],
-                        },
+                        show: { resource: ['space'] },
                     },
                     options: [
                         { name: 'Get Spaces', value: 'getSpaces', action: 'Get list of spaces' },
@@ -91,15 +86,26 @@ class Aitable {
                     type: 'options',
                     noDataExpression: true,
                     displayOptions: {
-                        show: {
-                            resource: ['node'],
-                        },
+                        show: { resource: ['node'] },
                     },
                     options: [
                         { name: 'Get Node List', value: 'getNodes', action: 'Get node list' },
                         { name: 'Search Nodes', value: 'searchNodes', action: 'Search nodes' },
                     ],
                     default: 'getNodes',
+                },
+                {
+                    displayName: 'Operation',
+                    name: 'operation',
+                    type: 'options',
+                    noDataExpression: true,
+                    displayOptions: {
+                        show: { resource: ['field'] },
+                    },
+                    options: [
+                        { name: 'Get Fields', value: 'getFields', action: 'Get fields of a datasheet' },
+                    ],
+                    default: 'getFields',
                 },
                 {
                     displayName: 'Space',
@@ -111,9 +117,7 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record', 'view', 'node'],
-                        },
+                        show: { resource: ['record', 'view', 'node', 'field'] },
                     },
                     description: 'The space to use',
                 },
@@ -128,9 +132,7 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record', 'view'],
-                        },
+                        show: { resource: ['record', 'view', 'field'] },
                     },
                     description: 'The datasheet to use',
                 },
@@ -145,10 +147,7 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record'],
-                            operation: ['getRecords'],
-                        },
+                        show: { resource: ['record'], operation: ['getRecords'] },
                     },
                     description: 'The view to use',
                 },
@@ -159,10 +158,7 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record'],
-                            operation: ['createRecords', 'updateRecords'],
-                        },
+                        show: { resource: ['record'], operation: ['createRecords', 'updateRecords'] },
                     },
                     description: 'Records to be created or updated in JSON format',
                 },
@@ -173,10 +169,7 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: {
-                            resource: ['record'],
-                            operation: ['deleteRecords'],
-                        },
+                        show: { resource: ['record'], operation: ['deleteRecords'] },
                     },
                     description: 'Comma-separated list of record IDs to delete',
                 },
@@ -187,10 +180,7 @@ class Aitable {
                     placeholder: 'Add Field',
                     default: {},
                     displayOptions: {
-                        show: {
-                            resource: ['record'],
-                            operation: ['getRecords'],
-                        },
+                        show: { resource: ['record'], operation: ['getRecords'] },
                     },
                     options: [
                         {
@@ -439,6 +429,12 @@ class Aitable {
                             keyword: this.getNodeParameter('keyword', i),
                             type: this.getNodeParameter('nodeType', i),
                         };
+                    }
+                }
+                else if (resource === "field") {
+                    if (operation === "getFields") {
+                        const datasheetId = this.getNodeParameter('datasheetId', i);
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/fields`;
                     }
                 }
                 response = await this.helpers.request(options);
