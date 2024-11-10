@@ -81,7 +81,7 @@ class Aitable {
                         },
                     },
                     options: [
-                        { name: 'Get List of Spaces', value: 'getSpaces', action: 'Get list of spaces' },
+                        { name: 'Get Spaces', value: 'getSpaces', action: 'Get list of spaces' },
                     ],
                     default: 'getSpaces',
                 },
@@ -157,17 +157,21 @@ class Aitable {
                     description: 'Comma-separated list of record IDs to delete',
                 },
                 {
-                    displayName: 'Space ID',
-                    name: 'spaceId',
-                    type: 'string',
+                    displayName: 'Space Name',
+                    name: 'spaceName',
+                    type: 'options',
+                    typeOptions: {
+                        loadOptionsMethod: 'getSpaceName',
+                    },
                     default: '',
                     required: true,
                     displayOptions: {
                         show: {
                             resource: ['node'],
+                            operation: ['getNodes', 'searchNodes'],
                         },
                     },
-                    description: 'The ID of the space',
+                    description: 'The name of the space',
                 },
                 {
                     displayName: 'Additional Fields',
@@ -220,6 +224,35 @@ class Aitable {
                     ],
                 },
             ],
+        };
+        this.methods = {
+            loadOptions: {
+                async getSpaceName() {
+                    const credentials = await this.getCredentials('aitableApi');
+                    if (!credentials) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'No credentials got returned!');
+                    }
+                    const options = {
+                        headers: {
+                            'Authorization': `Bearer ${credentials.apiToken}`,
+                            'Accept': 'application/json',
+                        },
+                        method: 'GET',
+                        url: 'https://aitable.ai/fusion/v1/spaces',
+                        json: true,
+                    };
+                    try {
+                        const response = await this.helpers.request(options);
+                        return response.data.spaces.map((space) => ({
+                            name: space.name,
+                            value: space.name,
+                        }));
+                    }
+                    catch (error) {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error);
+                    }
+                },
+            },
         };
     }
     async execute() {
@@ -278,8 +311,7 @@ class Aitable {
                     else if (operation === 'deleteRecords') {
                         const recordIds = this.getNodeParameter('recordIds', i);
                         options.method = 'DELETE';
-                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records`;
-                        options.body = { recordIds: recordIds.split(',') };
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?recordIds=${recordIds}`;
                     }
                 }
                 else if (resource === 'view') {
@@ -294,12 +326,21 @@ class Aitable {
                     }
                 }
                 else if (resource === 'node') {
-                    const spaceId = this.getNodeParameter('spaceId', i);
-                    if (operation === 'getNodes') {
-                        options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
-                    }
-                    else if (operation === 'searchNodes') {
-                        options.url = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
+                    if (operation === 'getNodes' || operation === 'searchNodes') {
+                        options.url = 'https://aitable.ai/fusion/v1/spaces';
+                        const spacesResponse = await this.helpers.request(options);
+                        const spaceName = this.getNodeParameter('spaceName', i);
+                        const space = spacesResponse.data.spaces.find((s) => s.name === spaceName);
+                        if (!space) {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Space with name "${spaceName}" not found`);
+                        }
+                        const spaceId = space.id;
+                        if (operation === 'getNodes') {
+                            options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
+                        }
+                        else if (operation === 'searchNodes') {
+                            options.url = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
+                        }
                     }
                 }
                 if (!options.url) {
@@ -311,7 +352,19 @@ class Aitable {
                 catch (error) {
                     throw new n8n_workflow_1.NodeApiError(this.getNode(), error);
                 }
-                returnData.push({ json: response });
+                if (resource === 'record' && operation === 'deleteRecords') {
+                    if (response.success && response.code === 200) {
+                        returnData.push({
+                            json: { success: true, message: 'Records deleted successfully' },
+                        });
+                    }
+                    else {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), response, { message: 'Failed to delete records' });
+                    }
+                }
+                else {
+                    returnData.push({ json: response });
+                }
             }
             catch (error) {
                 if (this.continueOnFail()) {
