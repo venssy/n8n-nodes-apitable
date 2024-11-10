@@ -104,6 +104,11 @@ class Aitable {
                             value: 'getAllRecords',
                             action: 'Get all records from a datasheet',
                         },
+                        {
+                            name: 'Get Views',
+                            value: 'getViews',
+                            action: 'Get views of a datasheet',
+                        },
                     ],
                     default: 'getAllRecords',
                 },
@@ -129,7 +134,7 @@ class Aitable {
                     displayOptions: {
                         show: {
                             resource: ['datasheet'],
-                            operation: ['getAllRecords'],
+                            operation: ['getAllRecords', 'getViews'],
                         },
                     },
                     description: 'The ID of the datasheet',
@@ -169,31 +174,34 @@ class Aitable {
                         'Accept': 'application/json',
                     },
                     method: 'GET',
-                    uri: '',
+                    url: '',
                     json: true,
                 };
                 if (resource === 'space') {
                     if (operation === 'getSpaces') {
-                        options.uri = 'https://aitable.ai/fusion/v1/spaces';
+                        options.url = 'https://aitable.ai/fusion/v1/spaces';
                     }
                 }
                 else if (resource === 'node') {
                     const spaceId = this.getNodeParameter('spaceId', i);
                     if (operation === 'getNodes') {
-                        options.uri = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
+                        options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
                     }
                     else if (operation === 'searchNodes') {
-                        options.uri = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
+                        options.url = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
                     }
                 }
                 else if (resource === 'datasheet') {
+                    const datasheetId = this.getNodeParameter('datasheetId', i);
                     if (operation === 'getAllRecords') {
-                        const datasheetId = this.getNodeParameter('datasheetId', i);
                         const viewId = this.getNodeParameter('viewId', i);
-                        options.uri = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
+                    }
+                    else if (operation === 'getViews') {
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`;
                     }
                 }
-                if (!options.uri) {
+                if (!options.url) {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), `The operation "${operation}" is not supported!`);
                 }
                 try {
