@@ -157,11 +157,11 @@ class Aitable {
                     description: 'Comma-separated list of record IDs to delete',
                 },
                 {
-                    displayName: 'Space Name',
-                    name: 'spaceName',
+                    displayName: 'Space',
+                    name: 'space',
                     type: 'options',
                     typeOptions: {
-                        loadOptionsMethod: 'getSpaceName',
+                        loadOptionsMethod: 'getSpaces',
                     },
                     default: '',
                     required: true,
@@ -171,7 +171,7 @@ class Aitable {
                             operation: ['getNodes', 'searchNodes'],
                         },
                     },
-                    description: 'The name of the space',
+                    description: 'The space to use',
                 },
                 {
                     displayName: 'Additional Fields',
@@ -227,29 +227,39 @@ class Aitable {
         };
         this.methods = {
             loadOptions: {
-                async getSpaceName() {
-                    const credentials = await this.getCredentials('aitableApi');
-                    if (!credentials) {
-                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'No credentials got returned!');
-                    }
-                    const options = {
-                        headers: {
-                            'Authorization': `Bearer ${credentials.apiToken}`,
-                            'Accept': 'application/json',
-                        },
-                        method: 'GET',
-                        url: 'https://aitable.ai/fusion/v1/spaces',
-                        json: true,
-                    };
+                async getSpaces() {
+                    const returnData = [];
                     try {
+                        const credentials = await this.getCredentials('aitableApi');
+                        if (!credentials) {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'No credentials got returned!');
+                        }
+                        const options = {
+                            headers: {
+                                'Authorization': `Bearer ${credentials.apiToken}`,
+                                'Accept': 'application/json',
+                            },
+                            method: 'GET',
+                            uri: 'https://aitable.ai/fusion/v1/spaces',
+                            json: true,
+                        };
                         const response = await this.helpers.request(options);
-                        return response.data.spaces.map((space) => ({
-                            name: space.name,
-                            value: space.name,
-                        }));
+                        for (const space of response.data.spaces) {
+                            const spaceName = space.name;
+                            const spaceId = space.id;
+                            returnData.push({
+                                name: spaceName,
+                                value: spaceId,
+                            });
+                        }
+                        return returnData;
                     }
                     catch (error) {
-                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error);
+                        console.error('Error loading spaces:', error);
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error, {
+                            message: 'Failed to load spaces. Please enter the Space ID manually.',
+                            description: 'The API request to fetch spaces failed. You can still proceed by entering the Space ID directly.',
+                        });
                     }
                 },
             },
@@ -327,14 +337,7 @@ class Aitable {
                 }
                 else if (resource === 'node') {
                     if (operation === 'getNodes' || operation === 'searchNodes') {
-                        options.url = 'https://aitable.ai/fusion/v1/spaces';
-                        const spacesResponse = await this.helpers.request(options);
-                        const spaceName = this.getNodeParameter('spaceName', i);
-                        const space = spacesResponse.data.spaces.find((s) => s.name === spaceName);
-                        if (!space) {
-                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Space with name "${spaceName}" not found`);
-                        }
-                        const spaceId = space.id;
+                        const spaceId = this.getNodeParameter('space', i);
                         if (operation === 'getNodes') {
                             options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
                         }
