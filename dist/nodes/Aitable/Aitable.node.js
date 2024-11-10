@@ -447,8 +447,8 @@ class Aitable {
                 }
                 else {
                     throw new n8n_workflow_1.NodeApiError(this.getNode(), response, {
-                        message: "Error in API response",
-                        description: response.message || "Unknown error occurred",
+                        message: 'Error in API response',
+                        description: response.message || 'Unknown error occurred',
                     });
                 }
             }
