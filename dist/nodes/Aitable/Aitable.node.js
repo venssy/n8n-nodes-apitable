@@ -30,18 +30,9 @@ class Aitable {
                     type: 'options',
                     noDataExpression: true,
                     options: [
-                        {
-                            name: 'Space',
-                            value: 'space',
-                        },
-                        {
-                            name: 'Node',
-                            value: 'node',
-                        },
-                        {
-                            name: 'Datasheet',
-                            value: 'datasheet',
-                        },
+                        { name: 'Space', value: 'space' },
+                        { name: 'Node', value: 'node' },
+                        { name: 'Datasheet', value: 'datasheet' },
                     ],
                     default: 'space',
                 },
@@ -56,11 +47,7 @@ class Aitable {
                         },
                     },
                     options: [
-                        {
-                            name: 'Get List of Spaces',
-                            value: 'getSpaces',
-                            action: 'Get list of spaces',
-                        },
+                        { name: 'Get List of Spaces', value: 'getSpaces', action: 'Get list of spaces' },
                     ],
                     default: 'getSpaces',
                 },
@@ -75,16 +62,8 @@ class Aitable {
                         },
                     },
                     options: [
-                        {
-                            name: 'Get Node List',
-                            value: 'getNodes',
-                            action: 'Get node list',
-                        },
-                        {
-                            name: 'Search Nodes',
-                            value: 'searchNodes',
-                            action: 'Search nodes',
-                        },
+                        { name: 'Get Node List', value: 'getNodes', action: 'Get node list' },
+                        { name: 'Search Nodes', value: 'searchNodes', action: 'Search nodes' },
                     ],
                     default: 'getNodes',
                 },
@@ -99,21 +78,10 @@ class Aitable {
                         },
                     },
                     options: [
-                        {
-                            name: 'Get All Records',
-                            value: 'getAllRecords',
-                            action: 'Get all records from a datasheet',
-                        },
-                        {
-                            name: 'Get Views',
-                            value: 'getViews',
-                            action: 'Get views of a datasheet',
-                        },
-                        {
-                            name: 'Get Records',
-                            value: 'getRecords',
-                            action: 'Get records from a datasheet',
-                        },
+                        { name: 'Get All Records', value: 'getAllRecords', action: 'Get all records from a datasheet' },
+                        { name: 'Get Views', value: 'getViews', action: 'Get views of a datasheet' },
+                        { name: 'Get Records', value: 'getRecords', action: 'Get records from a datasheet' },
+                        { name: 'Create Records', value: 'createRecords', action: 'Create records in a datasheet' },
                     ],
                     default: 'getAllRecords',
                 },
@@ -139,7 +107,7 @@ class Aitable {
                     displayOptions: {
                         show: {
                             resource: ['datasheet'],
-                            operation: ['getAllRecords', 'getViews', 'getRecords'],
+                            operation: ['getAllRecords', 'getViews', 'getRecords', 'createRecords'],
                         },
                     },
                     description: 'The ID of the datasheet',
@@ -157,6 +125,20 @@ class Aitable {
                         },
                     },
                     description: 'The ID of the view',
+                },
+                {
+                    displayName: 'Records',
+                    name: 'records',
+                    type: 'json',
+                    default: '',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            resource: ['datasheet'],
+                            operation: ['createRecords'],
+                        },
+                    },
+                    description: 'Records to be created in JSON format',
                 },
                 {
                     displayName: 'Additional Fields',
@@ -227,6 +209,7 @@ class Aitable {
                     headers: {
                         'Authorization': `Bearer ${credentials.apiToken}`,
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                     },
                     method: 'GET',
                     url: '',
@@ -271,6 +254,12 @@ class Aitable {
                         if (additionalFields.pageNum) {
                             options.url += `&pageNum=${additionalFields.pageNum}`;
                         }
+                    }
+                    else if (operation === 'createRecords') {
+                        const records = this.getNodeParameter('records', i);
+                        options.method = 'POST';
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records`;
+                        options.body = { records: JSON.parse(records) };
                     }
                 }
                 if (!options.url) {
