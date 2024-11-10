@@ -35,11 +35,45 @@ import {
           type: 'options',
           noDataExpression: true,
           options: [
+            { name: 'Record', value: 'record' },
+            { name: 'View', value: 'view' },
             { name: 'Space', value: 'space' },
             { name: 'Node', value: 'node' },
-            { name: 'Datasheet', value: 'datasheet' },
           ],
-          default: 'space',
+          default: 'record',
+        },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options',
+          noDataExpression: true,
+          displayOptions: {
+            show: {
+              resource: ['record'],
+            },
+          },
+          options: [
+            { name: 'Get Records', value: 'getRecords', action: 'Get records from a datasheet' },
+            { name: 'Create Records', value: 'createRecords', action: 'Create records in a datasheet' },
+            { name: 'Update Records', value: 'updateRecords', action: 'Update records in a datasheet' },
+            { name: 'Delete Records', value: 'deleteRecords', action: 'Delete records from a datasheet' },
+          ],
+          default: 'getRecords',
+        },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options',
+          noDataExpression: true,
+          displayOptions: {
+            show: {
+              resource: ['view'],
+            },
+          },
+          options: [
+            { name: 'Get View', value: 'getView', action: 'Get view of a datasheet' },
+          ],
+          default: 'getView',
         },
         {
           displayName: 'Operation',
@@ -73,22 +107,59 @@ import {
           default: 'getNodes',
         },
         {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options',
-          noDataExpression: true,
+          displayName: 'Datasheet ID',
+          name: 'datasheetId',
+          type: 'string',
+          default: '',
+          required: true,
           displayOptions: {
             show: {
-              resource: ['datasheet'],
+              resource: ['record', 'view'],
             },
           },
-          options: [
-            { name: 'Get All Records', value: 'getAllRecords', action: 'Get all records from a datasheet' },
-            { name: 'Get Views', value: 'getViews', action: 'Get views of a datasheet' },
-            { name: 'Get Records', value: 'getRecords', action: 'Get records from a datasheet' },
-            { name: 'Create Records', value: 'createRecords', action: 'Create records in a datasheet' },
-          ],
-          default: 'getAllRecords',
+          description: 'The ID of the datasheet',
+        },
+        {
+          displayName: 'View ID',
+          name: 'viewId',
+          type: 'string',
+          default: '',
+          required: true,
+          displayOptions: {
+            show: {
+              resource: ['record'],
+              operation: ['getRecords'],
+            },
+          },
+          description: 'The ID of the view',
+        },
+        {
+          displayName: 'Records',
+          name: 'records',
+          type: 'json',
+          default: '',
+          required: true,
+          displayOptions: {
+            show: {
+              resource: ['record'],
+              operation: ['createRecords', 'updateRecords'],
+            },
+          },
+          description: 'Records to be created or updated in JSON format',
+        },
+        {
+          displayName: 'Record IDs',
+          name: 'recordIds',
+          type: 'string',
+          default: '',
+          required: true,
+          displayOptions: {
+            show: {
+              resource: ['record'],
+              operation: ['deleteRecords'],
+            },
+          },
+          description: 'Comma-separated list of record IDs to delete',
         },
         {
           displayName: 'Space ID',
@@ -104,48 +175,6 @@ import {
           description: 'The ID of the space',
         },
         {
-          displayName: 'Datasheet ID',
-          name: 'datasheetId',
-          type: 'string',
-          default: '',
-          required: true,
-          displayOptions: {
-            show: {
-              resource: ['datasheet'],
-              operation: ['getAllRecords', 'getViews', 'getRecords', 'createRecords'],
-            },
-          },
-          description: 'The ID of the datasheet',
-        },
-        {
-          displayName: 'View ID',
-          name: 'viewId',
-          type: 'string',
-          default: '',
-          required: true,
-          displayOptions: {
-            show: {
-              resource: ['datasheet'],
-              operation: ['getAllRecords', 'getRecords'],
-            },
-          },
-          description: 'The ID of the view',
-        },
-        {
-          displayName: 'Records',
-          name: 'records',
-          type: 'json',
-          default: '',
-          required: true,
-          displayOptions: {
-            show: {
-              resource: ['datasheet'],
-              operation: ['createRecords'],
-            },
-          },
-          description: 'Records to be created in JSON format',
-        },
-        {
           displayName: 'Additional Fields',
           name: 'additionalFields',
           type: 'collection',
@@ -153,7 +182,7 @@ import {
           default: {},
           displayOptions: {
             show: {
-              resource: ['datasheet'],
+              resource: ['record'],
               operation: ['getRecords'],
             },
           },
@@ -224,27 +253,10 @@ import {
             json: true,
           };
   
-          if (resource === 'space') {
-            if (operation === 'getSpaces') {
-              options.url = 'https://aitable.ai/fusion/v1/spaces';
-            }
-          } else if (resource === 'node') {
-            const spaceId = this.getNodeParameter('spaceId', i) as string;
-  
-            if (operation === 'getNodes') {
-              options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
-            } else if (operation === 'searchNodes') {
-              options.url = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
-            }
-          } else if (resource === 'datasheet') {
+          if (resource === 'record') {
             const datasheetId = this.getNodeParameter('datasheetId', i) as string;
   
-            if (operation === 'getAllRecords') {
-              const viewId = this.getNodeParameter('viewId', i) as string;
-              options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
-            } else if (operation === 'getViews') {
-              options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`;
-            } else if (operation === 'getRecords') {
+            if (operation === 'getRecords') {
               const viewId = this.getNodeParameter('viewId', i) as string;
               options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
   
@@ -272,6 +284,34 @@ import {
               options.method = 'POST';
               options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records`;
               options.body = { records: JSON.parse(records) };
+            } else if (operation === 'updateRecords') {
+              const records = this.getNodeParameter('records', i) as string;
+              options.method = 'PATCH';
+              options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records`;
+              options.body = { records: JSON.parse(records) };
+            } else if (operation === 'deleteRecords') {
+              const recordIds = this.getNodeParameter('recordIds', i) as string;
+              options.method = 'DELETE';
+              options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records`;
+              options.body = { recordIds: recordIds.split(',') };
+            }
+          } else if (resource === 'view') {
+            const datasheetId = this.getNodeParameter('datasheetId', i) as string;
+  
+            if (operation === 'getView') {
+              options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`;
+            }
+          } else if (resource === 'space') {
+            if (operation === 'getSpaces') {
+              options.url = 'https://aitable.ai/fusion/v1/spaces';
+            }
+          } else if (resource === 'node') {
+            const spaceId = this.getNodeParameter('spaceId', i) as string;
+  
+            if (operation === 'getNodes') {
+              options.url = `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`;
+            } else if (operation === 'searchNodes') {
+              options.url = `https://aitable.ai/fusion/v2/spaces/${spaceId}/nodes?type=Datasheet&permissions=0,1`;
             }
           }
   
