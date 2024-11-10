@@ -109,6 +109,11 @@ class Aitable {
                             value: 'getViews',
                             action: 'Get views of a datasheet',
                         },
+                        {
+                            name: 'Get Records',
+                            value: 'getRecords',
+                            action: 'Get records from a datasheet',
+                        },
                     ],
                     default: 'getAllRecords',
                 },
@@ -134,7 +139,7 @@ class Aitable {
                     displayOptions: {
                         show: {
                             resource: ['datasheet'],
-                            operation: ['getAllRecords', 'getViews'],
+                            operation: ['getAllRecords', 'getViews', 'getRecords'],
                         },
                     },
                     description: 'The ID of the datasheet',
@@ -148,10 +153,60 @@ class Aitable {
                     displayOptions: {
                         show: {
                             resource: ['datasheet'],
-                            operation: ['getAllRecords'],
+                            operation: ['getAllRecords', 'getRecords'],
                         },
                     },
                     description: 'The ID of the view',
+                },
+                {
+                    displayName: 'Additional Fields',
+                    name: 'additionalFields',
+                    type: 'collection',
+                    placeholder: 'Add Field',
+                    default: {},
+                    displayOptions: {
+                        show: {
+                            resource: ['datasheet'],
+                            operation: ['getRecords'],
+                        },
+                    },
+                    options: [
+                        {
+                            displayName: 'Fields',
+                            name: 'fields',
+                            type: 'string',
+                            default: '',
+                            description: 'Comma-separated list of field names to return',
+                        },
+                        {
+                            displayName: 'Sort',
+                            name: 'sort',
+                            type: 'string',
+                            default: '',
+                            description: 'Sorting rules, e.g., [{"field":"field1","order":"desc"}]',
+                        },
+                        {
+                            displayName: 'Page Size',
+                            name: 'pageSize',
+                            type: 'number',
+                            typeOptions: {
+                                minValue: 1,
+                                maxValue: 1000,
+                            },
+                            default: 100,
+                            description: 'Number of records to return per page',
+                        },
+                        {
+                            displayName: 'Page Number',
+                            name: 'pageNum',
+                            type: 'number',
+                            typeOptions: {
+                                minValue: 1,
+                            },
+                            default: 1,
+                            description: 'Page number to return',
+                        },
+                    ],
                 },
             ],
         };
@@ -199,6 +254,23 @@ class Aitable {
                     }
                     else if (operation === 'getViews') {
                         options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`;
+                    }
+                    else if (operation === 'getRecords') {
+                        const viewId = this.getNodeParameter('viewId', i);
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/records?viewId=${viewId}`;
+                        const additionalFields = this.getNodeParameter('additionalFields', i);
+                        if (additionalFields.fields) {
+                            options.url += `&fields=${encodeURIComponent(additionalFields.fields)}`;
+                        }
+                        if (additionalFields.sort) {
+                            options.url += `&sort=${encodeURIComponent(additionalFields.sort)}`;
+                        }
+                        if (additionalFields.pageSize) {
+                            options.url += `&pageSize=${additionalFields.pageSize}`;
+                        }
+                        if (additionalFields.pageNum) {
+                            options.url += `&pageNum=${additionalFields.pageNum}`;
+                        }
                     }
                 }
                 if (!options.url) {
