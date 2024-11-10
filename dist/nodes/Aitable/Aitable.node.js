@@ -108,6 +108,16 @@ class Aitable {
                     default: 'getFields',
                 },
                 {
+                    displayName: 'Use Dropdown',
+                    name: 'useDropdown',
+                    type: 'boolean',
+                    default: true,
+                    description: 'Whether to use dropdown lists for Space and Datasheet selection',
+                    displayOptions: {
+                        show: { resource: ['field'], operation: ['getFields'] },
+                    },
+                },
+                {
                     displayName: 'Space',
                     name: 'space',
                     type: 'options',
@@ -117,9 +127,28 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: { resource: ['record', 'view', 'node', 'field'] },
+                        show: {
+                            resource: ['record', 'view', 'node', 'field'],
+                            operation: ['getFields'],
+                            useDropdown: [true],
+                        },
                     },
                     description: 'The space to use',
+                },
+                {
+                    displayName: 'Space ID',
+                    name: 'spaceId',
+                    type: 'string',
+                    default: '',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            resource: ['field'],
+                            operation: ['getFields'],
+                            useDropdown: [false],
+                        },
+                    },
+                    description: 'The ID of the space to use',
                 },
                 {
                     displayName: 'Datasheet',
@@ -132,9 +161,28 @@ class Aitable {
                     default: '',
                     required: true,
                     displayOptions: {
-                        show: { resource: ['record', 'view', 'field'] },
+                        show: {
+                            resource: ['record', 'view', 'field'],
+                            operation: ['getFields'],
+                            useDropdown: [true],
+                        },
                     },
                     description: 'The datasheet to use',
+                },
+                {
+                    displayName: 'Datasheet ID',
+                    name: 'datasheetIdManual',
+                    type: 'string',
+                    default: '',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            resource: ['field'],
+                            operation: ['getFields'],
+                            useDropdown: [false],
+                        },
+                    },
+                    description: 'The ID of the datasheet to use',
                 },
                 {
                     displayName: 'View',
@@ -226,125 +274,96 @@ class Aitable {
             loadOptions: {
                 async getSpaces() {
                     const returnData = [];
-                    try {
-                        const credentials = await this.getCredentials('aitableApi');
-                        if (!credentials) {
-                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
-                        }
-                        const options = {
-                            headers: {
-                                Authorization: `Bearer ${credentials.apiToken}`,
-                                Accept: "application/json",
-                            },
-                            method: "GET",
-                            uri: "https://aitable.ai/fusion/v1/spaces",
-                            json: true,
-                        };
-                        const response = await this.helpers.request(options);
+                    const credentials = await this.getCredentials('aitableApi');
+                    if (!credentials) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
+                    }
+                    const options = {
+                        headers: {
+                            Authorization: `Bearer ${credentials.apiToken}`,
+                            Accept: "application/json",
+                        },
+                        method: "GET",
+                        url: "https://aitable.ai/fusion/v1/spaces",
+                        json: true,
+                    };
+                    const response = await this.helpers.request(options);
+                    if (response.success && response.code === 200) {
                         for (const space of response.data.spaces) {
-                            const spaceName = space.name;
-                            const spaceId = space.id;
                             returnData.push({
-                                name: spaceName,
-                                value: spaceId,
+                                name: space.name,
+                                value: space.id,
                             });
                         }
-                        return returnData;
                     }
-                    catch (error) {
-                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error, {
-                            message: "Failed to load spaces",
-                            description: "An error occurred while fetching spaces. Please check your credentials and try again.",
-                        });
+                    else {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), response);
                     }
+                    return returnData;
                 },
                 async getDatasheets() {
                     const returnData = [];
-                    try {
-                        const credentials = await this.getCredentials('aitableApi');
-                        if (!credentials) {
-                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
-                        }
-                        const spaceId = this.getCurrentNodeParameter('space');
-                        const options = {
-                            headers: {
-                                Authorization: `Bearer ${credentials.apiToken}`,
-                                Accept: "application/json",
-                            },
-                            method: "GET",
-                            uri: `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`,
-                            json: true,
-                        };
-                        const response = await this.helpers.request(options);
-                        if (!response.success || response.code !== 200) {
-                            throw new n8n_workflow_1.NodeApiError(this.getNode(), response, {
-                                message: "Error fetching datasheets",
-                                description: response.message || "Unknown error occurred",
-                            });
-                        }
+                    const credentials = await this.getCredentials('aitableApi');
+                    if (!credentials) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
+                    }
+                    const spaceId = this.getCurrentNodeParameter('space');
+                    const options = {
+                        headers: {
+                            Authorization: `Bearer ${credentials.apiToken}`,
+                            Accept: "application/json",
+                        },
+                        method: "GET",
+                        url: `https://aitable.ai/fusion/v1/spaces/${spaceId}/nodes`,
+                        json: true,
+                    };
+                    const response = await this.helpers.request(options);
+                    if (response.success && response.code === 200) {
                         for (const node of response.data.nodes) {
-                            if (node.type === "Datasheet") {
+                            if (node.type === 'Datasheet') {
                                 returnData.push({
                                     name: node.name,
                                     value: node.id,
                                 });
                             }
                         }
-                        return returnData;
                     }
-                    catch (error) {
-                        if (error instanceof n8n_workflow_1.NodeApiError) {
-                            throw error;
-                        }
-                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error, {
-                            message: "Error loading datasheets",
-                            description: "An unexpected error occurred while fetching datasheets. Please check your credentials and try again.",
-                        });
+                    else {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), response);
                     }
+                    return returnData;
                 },
                 async getViews() {
                     const returnData = [];
-                    try {
-                        const credentials = await this.getCredentials('aitableApi');
-                        if (!credentials) {
-                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
-                        }
-                        const datasheetId = this.getCurrentNodeParameter('datasheetId');
-                        const options = {
-                            headers: {
-                                Authorization: `Bearer ${credentials.apiToken}`,
-                                Accept: "application/json",
-                            },
-                            method: "GET",
-                            uri: `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`,
-                            json: true,
-                        };
-                        const response = await this.helpers.request(options);
-                        if (!response.success || response.code !== 200) {
-                            throw new n8n_workflow_1.NodeApiError(this.getNode(), response, {
-                                message: "Error fetching views",
-                                description: response.message || "Unknown error occurred",
-                            });
-                        }
+                    const credentials = await this.getCredentials('aitableApi');
+                    if (!credentials) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), "No credentials got returned!");
+                    }
+                    const datasheetId = this.getCurrentNodeParameter('datasheetId');
+                    const options = {
+                        headers: {
+                            Authorization: `Bearer ${credentials.apiToken}`,
+                            Accept: "application/json",
+                        },
+                        method: "GET",
+                        url: `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/views`,
+                        json: true,
+                    };
+                    const response = await this.helpers.request(options);
+                    if (response.success && response.code === 200) {
                         for (const view of response.data.views) {
                             returnData.push({
                                 name: view.name,
                                 value: view.id,
                             });
                         }
-                        return returnData;
                     }
-                    catch (error) {
-                        if (error instanceof n8n_workflow_1.NodeApiError) {
-                            throw error;
-                        }
-                        throw new n8n_workflow_1.NodeApiError(this.getNode(), error, {
-                            message: "Error loading views",
-                            description: "An unexpected error occurred while fetching views. Please check your credentials and try again.",
-                        });
+                    else {
+                        throw new n8n_workflow_1.NodeApiError(this.getNode(), response);
                     }
-                }
-            }
+                    return returnData;
+                },
+            },
         };
     }
     async execute() {
@@ -369,7 +388,20 @@ class Aitable {
                     url: "",
                     json: true,
                 };
-                if (resource === "record") {
+                if (resource === "field") {
+                    if (operation === "getFields") {
+                        const useDropdown = this.getNodeParameter('useDropdown', i);
+                        let datasheetId;
+                        if (useDropdown) {
+                            datasheetId = this.getNodeParameter('datasheetId', i);
+                        }
+                        else {
+                            datasheetId = this.getNodeParameter('datasheetIdManual', i);
+                        }
+                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/fields`;
+                    }
+                }
+                else if (resource === "record") {
                     const datasheetId = this.getNodeParameter('datasheetId', i);
                     if (operation === "getRecords") {
                         const viewId = this.getNodeParameter('view', i);
@@ -429,12 +461,6 @@ class Aitable {
                             keyword: this.getNodeParameter('keyword', i),
                             type: this.getNodeParameter('nodeType', i),
                         };
-                    }
-                }
-                else if (resource === "field") {
-                    if (operation === "getFields") {
-                        const datasheetId = this.getNodeParameter('datasheetId', i);
-                        options.url = `https://aitable.ai/fusion/v1/datasheets/${datasheetId}/fields`;
                     }
                 }
                 response = await this.helpers.request(options);
