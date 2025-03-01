@@ -1,2 +1,2 @@
-export { Aitable } from './nodes/Aitable/Aitable.node';
-export { AitableApi } from './credentials/AitableApi.credentials';
+export { Apitable } from './nodes/Apitable/Apitable.node';
+export { ApitableApi } from './credentials/ApitableApi.credentials';
