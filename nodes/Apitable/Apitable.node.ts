@@ -23,6 +23,39 @@ const config: N8NPropertiesBuilderConfig = { OperationsCollector: ApitableOperat
 const parser = new N8NPropertiesBuilder(doc, config);
 const properties = parser.build();
 
+async function getSpaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+  const returnData: INodePropertyOptions[] = [];
+  const credentials = await this.getCredentials('aitableApi');
+  if (!credentials) {
+    throw new NodeOperationError(this.getNode(), "No credentials got returned!");
+  }
+
+  const options: IHttpRequestOptions = {
+    headers: {
+      Authorization: `Bearer ${credentials.apiToken}`,
+      Accept: "application/json",
+    },
+    method: "GET",
+    url: `${credentials.url}/fusion/v1/spaces`,
+    json: true,
+  };
+
+  const response = await this.helpers.request!(options);
+
+  if (response.success && response.code === 200) {
+    for (const space of response.data.spaces) {
+      returnData.push({
+        name: space.name,
+        value: space.id,
+      });
+    }
+  } else {
+    throw new NodeApiError(this.getNode(), response as JsonObject);
+  }
+
+  return returnData;
+}
+
 export class Apitable implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Apitable',
@@ -55,38 +88,7 @@ export class Apitable implements INodeType {
 
   methods = {
     loadOptions: {
-      async getSpaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-        const returnData: INodePropertyOptions[] = [];
-        const credentials = await this.getCredentials('aitableApi');
-        if (!credentials) {
-          throw new NodeOperationError(this.getNode(), "No credentials got returned!");
-        }
-
-        const options: IHttpRequestOptions = {
-          headers: {
-            Authorization: `Bearer ${credentials.apiToken}`,
-            Accept: "application/json",
-          },
-          method: "GET",
-          url: `${credentials.url}/fusion/v1/spaces`,
-          json: true,
-        };
-
-        const response = await this.helpers.request!(options);
-
-        if (response.success && response.code === 200) {
-          for (const space of response.data.spaces) {
-            returnData.push({
-              name: space.name,
-              value: space.id,
-            });
-          }
-        } else {
-          throw new NodeApiError(this.getNode(), response as JsonObject);
-        }
-
-        return returnData;
-      },
+      getSpaces,
 
       async getDatasheets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
         const returnData: INodePropertyOptions[] = [];
@@ -95,7 +97,11 @@ export class Apitable implements INodeType {
           throw new NodeOperationError(this.getNode(), "No credentials got returned!");
         }
 
-        const spaceId = this.getCurrentNodeParameter('space') as string;
+        let spaceId = this.getCurrentNodeParameter('spaceId') as string;
+
+        if (spaceId === undefined) {
+          spaceId = (await getSpaces.call(this))[0].value as string
+        }
 
         const options: IHttpRequestOptions = {
           headers: {
@@ -132,7 +138,11 @@ export class Apitable implements INodeType {
           throw new NodeOperationError(this.getNode(), "No credentials got returned!");
         }
 
-        const datasheetId = this.getCurrentNodeParameter('datasheetId') as string;
+        const datasheetId = this.getCurrentNodeParameter('datasheetId') as string | undefined;
+
+        if (!datasheetId) {
+          throw new NodeOperationError(this.getNode(), "No datasheet got returned!");
+        }
 
         const options: IHttpRequestOptions = {
           headers: {

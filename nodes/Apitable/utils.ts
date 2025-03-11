@@ -36,7 +36,20 @@ export class ApitableOperationsCollector extends OperationsCollector {
     operation1.fields.forEach(field => {
       if (field.name === "spaceId") {
         field.type = "options"
-        field.typeOptions = { loadOptionsMethod: 'getSpaces', }
+        field.typeOptions = {
+          loadOptionsMethod: 'getSpaces',
+        }
+      }else if (field.name === "datasheetId") {
+        field.type = "options"
+        field.typeOptions = {
+          loadOptionsMethod: 'getDatasheets',
+        }
+      }else if (field.name === "viewId") {
+        field.type = "options"
+        field.typeOptions = {
+          loadOptionsMethod: 'getViews',
+          loadOptionsDependsOn: [ 'datasheetId' ],
+        }
       }
     })
 

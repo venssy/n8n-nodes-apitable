@@ -1,12 +1,12 @@
 {
   "name": "n8n-nodes-apitable",
-  "version": "0.0.2b",
+  "version": "0.0.4b",
   "description": "Apitable integration for n8n",
   "keywords": [
     "n8n-community-node-package",
     "n8n-nodes",
-    "n8n-nodes-docker",
-    "docker"
+    "n8n-nodes-apitable",
+    "apitable"
   ],
   "license": "MIT",
   "homepage": "",

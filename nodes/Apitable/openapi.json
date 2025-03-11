@@ -759,29 +759,23 @@
             "name": "pageSize",
             "description": "How many records are returned per page",
             "in": "query",
-            "type": "ineger"
+            "type": "integer"
           },
           {
             "name": "maxRecords",
             "description": "How many records are returned per page",
             "in": "query",
-            "type": "ineger"
+            "type": "integer"
           },
           {
             "name": "pageNum",
             "description": "Specifies the page number of the page",
             "in": "query",
-            "type": "ineger"
+            "type": "integer"
           },
           {
             "name": "sort",
-            "description": "Sort the returned records",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "sort",
-            "description": "Sort the returned records",
+            "description": "Sort the returned records, must be { \"field\": \"fieldname\", \"order\": \"asc|desc\" }",
             "in": "query",
             "schema": {
               "type": "object",
