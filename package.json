@@ -37,7 +37,7 @@
       "dist/credentials/ApitableApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ApitableV2/Apitable.node.js"
+      "dist/nodes/Apitable/Apitable.node.js"
     ]
   },
   "devDependencies": {
