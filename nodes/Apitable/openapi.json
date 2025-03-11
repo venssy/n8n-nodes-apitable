@@ -1,0 +1,1124 @@
+{
+  "components": {
+    "schemas": {
+      "Space": {
+        "properties": {
+          "id": {
+            "description": "ID of space",
+            "example": "spczdmQDfBAn5",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of space",
+            "example": "Vika",
+            "type": "string"
+          },
+          "isAdmin": {
+            "description": "whether the current requesting user is the admin of the space",
+            "example": "true",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Node": {
+        "properties": {
+          "id": {
+            "description": "ID of file node",
+            "example": "spczdmQDfBAn5",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of file node",
+            "example": "Vika",
+            "type": "string"
+          },
+          "icon": {
+            "description": "Icon of file node",
+            "example": "🤠",
+            "type": "string"
+          },
+          "type": {
+            "description": "Name of file node",
+            "example": "Folder",
+            "enum": [
+              "Datasheet",
+              "Mirror",
+              "Folder",
+              "Form",
+              "Dashboard",
+              "Automation"
+            ],
+            "type": "string"
+          },
+          "permission": {
+            "description": "API tokens are generated based on individual accounts. Users can retrieve a list of file nodes that they have specific permissions for using the API token..\n0: Manager, able to add, delete views and records field, and allowed to edit fields, but nable to add and delete fields.\n1: Editor, able to add, delete views and records field, and allowed to edit fields, but unable to add and delete fields.\n2: Update-only, able to view, add and edit records, but unable to delete records.\n3: Read-only, only allowed to view the data.\nFor more details about file node permissions can be found here: https://help.aitable.ai/docs/guide/faq-permission-settings",
+            "example": "0",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "type": "integer"
+          },
+          "isFav": {
+            "description": "Pin status. This parameter indicates whether the current node is pinned to the \"Pin\" section in the left sidebar",
+            "example": "true",
+            "type": "boolean"
+          },
+          "children": {
+            "description": "Only returned when Get Node Details is requested。The children information will only be returned when the file type is Folder. Under children, there is a list of file nodes in the folder one level down.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Node"
+            }
+          },
+          "parentId": {
+            "description": "Only returned when requesting Get Node List and Search Nodes. Parent node ID. This attribute specifies the ID of the parent node for the current node. If the node does not have a parent node, then this attribute is not returned",
+            "example": "fodwrbgo8lDpbUjZzm",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Record": {
+        "properties": {
+          "recordId": {
+            "description": "ID of record",
+            "example": "spczdmQDfBAn5",
+            "type": "string"
+          },
+          "fields": {
+            "description": "The data of the corresponding field in a record, the return format is {'fieldName': 'fielValue'}, please refer to Record for details",
+            "type": "object",
+            "properties": {
+              "fieldName": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "description": "The creation time of the record, in timestamp format",
+            "type": "number"
+          },
+          "updatedAt": {
+            "description": "The modification time of the record, in timestamp format",
+            "type": "number"
+          }
+        },
+        "required": [
+          "recordId",
+          "fields",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "Field": {
+        "properties": {
+          "id": {
+            "description": "ID of field",
+            "example": "spczdmQDfBAn5",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of field",
+            "example": "Vika",
+            "type": "string"
+          },
+          "type": {
+            "description": "Field types, possible values are listed in the section Field Types and Attributes",
+            "example": "SingleText",
+            "enum": [
+              "SingleText",
+              "Text",
+              "SingleSelect",
+              "MultiSelect",
+              "Number",
+              "Currency",
+              "Percent",
+              "DateTime",
+              "Attachment",
+              "Member",
+              "Checkbox",
+              "Rating",
+              "URL",
+              "Phone",
+              "Email",
+              "WorkDoc",
+              "OneWayLink",
+              "TwoWayLink",
+              "MagicLookUp",
+              "Formula",
+              "AutoNumber",
+              "CreatedTime",
+              "LastModifiedTime",
+              "CreatedBy",
+              "LastModifiedBy",
+              "Button"
+            ],
+            "type": "string"
+          },
+          "editable": {
+            "description": "Field permissions, i.e. column permissions, true for editable, false for read-only",
+            "example": "true",
+            "type": "boolean"
+          },
+          "property": {
+            "description": "Field attributes.Different fields have different attributes, see the section Field Types and Attributes for details on the attributes of various fields",
+            "example": "{}",
+            "type": "object"
+          },
+          "isPrimary": {
+            "description": "Is the primary field",
+            "example": "true",
+            "type": "boolean"
+          },
+          "desc": {
+            "description": "Field descriptions, i.e. column descriptions",
+            "example": "This column is the automatic generation of the single number, do not manually modify",
+            "type": "string"
+          }
+        }
+      },
+      "FieldItemRo": {
+        "properties": {
+          "name": {
+            "description": "Field name, no more than 100 characters",
+            "type": "string"
+          },
+          "type": {
+            "description": "Field types",
+            "example": "SingleText",
+            "enum": [
+              "SingleText",
+              "Text",
+              "SingleSelect",
+              "MultiSelect",
+              "Number",
+              "Currency",
+              "Percent",
+              "DateTime",
+              "Attachment",
+              "Member",
+              "Checkbox",
+              "Rating",
+              "URL",
+              "Phone",
+              "Email",
+              "WorkDoc",
+              "OneWayLink",
+              "TwoWayLink",
+              "MagicLookUp",
+              "Formula",
+              "AutoNumber",
+              "CreatedTime",
+              "LastModifiedTime",
+              "CreatedBy",
+              "LastModifiedBy",
+              "Button"
+            ],
+            "type": "string"
+          },
+          "property": {
+            "description": "Single line text attribute",
+            "type": "object",
+            "properties": {
+              "defaultValue": {
+                "description": "Default text content",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "property"
+        ],
+        "type": "object"
+      },
+      "View": {
+        "properties": {
+          "id": {
+            "description": "ID of view",
+            "example": "spczdmQDfBAn5",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of view",
+            "example": "All Orders",
+            "type": "string"
+          },
+          "type": {
+            "description": "The creation time of the record, in timestamp format",
+            "type": "string",
+            "enum": [
+              "Grid", "Gallery", "Kanban", "Gantt", "Calendar", "Architecture"
+            ]
+          }
+        },
+        "required": [
+          "recordId",
+          "fields",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      }
+    }
+  },
+
+
+  "paths": {
+    "/spaces": {
+      "get": {
+        "summary": "Get the List of Spaces",
+        "tags": [ "space" ],
+        "operationId": "SpaceList",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "spaces": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Space"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/spaces/{spaceId}/nodes": {
+      "get": {
+        "summary": "Get the List of Nodes for a specific Space",
+        "tags": [ "node" ],
+        "operationId": "NodeList",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "description": "Space ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "enum": [
+              "Folder",
+              "Datasheet",
+              "Form",
+              "Dashboard",
+              "Mirror"
+            ],
+            "description": "The type of file node, value in (\"Folder\", \"Datasheet\", \"Form\", \"Dashboard\", \"Mirror\"). The values are case-sensitive.",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "permissions",
+            "description": "API tokens are generated based on individual accounts. Users can retrieve a list of file nodes that they have specific permissions for using the API token..\n0: Manager, able to add, delete views and records field, and allowed to edit fields, but nable to add and delete fields.\n1: Editor, able to add, delete views and records field, and allowed to edit fields, but unable to add and delete fields.\n2: Update-only, able to view, add and edit records, but unable to delete records.\n3: Read-only, only allowed to view the data.\nFor more details about file node permissions can be found here: https://help.aitable.ai/docs/guide/faq-permission-settings",
+            "example": "[0]",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "query",
+            "description": "This parameter enables searching for file nodes with specific keywords and returns a list of matching nodes based on partial name matches.",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "nodes": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Node"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/spaces/{spaceId}/nodes/{nodeId}": {
+      "get": {
+        "summary": "Get node info",
+        "tags": [ "node" ],
+        "operationId": "NodeInfo",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "spaceId",
+            "description": "Space ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "nodeId",
+            "description": "File node ID, such as AITable Datasheet ID, folder ID, collection table ID or dashboard ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Node"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/spaces/{spaceId}/datasheets": {
+      "post": {
+        "summary": "Create a datasheet with the specified fields in the specified space.",
+        "operationId": "DatasheetList",
+        "tags": [ "datasheet" ],
+        "parameters": [
+          {
+            "name": "spaceId",
+            "description": "Space ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "Name of datasheet, no more than 100 characters",
+            "in": "body",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "description": "Table description, no more than 500 characters",
+            "in": "body",
+            "type": "string"
+          },
+          {
+            "name": "folderId",
+            "description": "The folder ID; if it is blank, it will be the working directory by default",
+            "in": "body",
+            "type": "string"
+          },
+          {
+            "name": "preNodeId",
+            "description": "The ID of the previous node. If it is empty, it will be moved to the first place",
+            "in": "body",
+            "type": "string"
+          },
+          {
+            "name": "fields",
+            "description": "Field list. If it is blank, 3 columns of default fields will be added",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "$ref": "#/components/schemas/FieldItemRo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "schema": {
+                        "$ref": "#/components/schemas/FieldItemRo"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/datasheets/{datasheetId}/views": {
+      "get": {
+        "tags": [ "view" ],
+        "operationId": "ViewList",
+        "summary": "Get all views for a specific datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "views": {
+                          "schema": {
+                            "$ref": "#/components/schemas/View"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    
+    "/datasheets/{datasheetId}/fields": {
+      "get": {
+        "tags": [ "field" ],
+        "operationId": "FieldList",
+        "summary": "Get information about all fields in the specified datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "viewId",
+            "description": "When the viewId is not explicitly specified, all records and fields are returned.",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Field"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      }
+    },
+
+    "/spaces/{spaceId}/datasheets/{datasheetId}/fields": {
+      "post": {
+        "tags": [ "field" ],
+        "operationId": "FieldCreate",
+        "summary": "Create a new field in a specific datasheet",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "description": "Space ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "description": "Name of field",
+            "in": "body",
+            "type": "string"
+          },
+           {
+            "name": "type",
+            "description": "Field types, possible values are listed in the section Field Types and Attributes",
+            "example": "SingleText",
+            "in": "body",
+            "enum": [
+              "SingleText",
+              "Text",
+              "SingleSelect",
+              "MultiSelect",
+              "Number",
+              "Currency",
+              "Percent",
+              "DateTime",
+              "Attachment",
+              "Member",
+              "Checkbox",
+              "Rating",
+              "URL",
+              "Phone",
+              "Email",
+              "WorkDoc",
+              "OneWayLink",
+              "TwoWayLink",
+              "MagicLookUp",
+              "Formula",
+              "AutoNumber",
+              "CreatedTime",
+              "LastModifiedTime",
+              "CreatedBy",
+              "LastModifiedBy",
+              "Button"
+            ],
+            "type": "string"
+          },
+           {
+            "name": "property",
+            "in": "body",
+            "description": "Field attributes.Different fields have different attributes, see the section Field Types and Attributes for details on the attributes of various fields",
+            "type": "object"
+          }
+        ],
+        
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      }
+    },
+
+    "/spaces/{spaceId}/datasheets/{datasheetId}/fields/{fieldId}": {
+      "delete": {
+        "tags": [ "field" ],
+        "operationId": "FieldDelete",
+        "summary": "Delete an existing field in a specific datasheet",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "description": "Space ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fieldId",
+            "description": "Field ID, field ID can be obtained through the field interface",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      }
+    },
+
+    "/datasheets/{datasheetId}/records": {
+      "get": {
+        "tags": [ "record" ],
+        "operationId": "RecordList",
+        "summary": "Get all records for a specific datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "How many records are returned per page",
+            "in": "query",
+            "type": "ineger"
+          },
+          {
+            "name": "maxRecords",
+            "description": "How many records are returned per page",
+            "in": "query",
+            "type": "ineger"
+          },
+          {
+            "name": "pageNum",
+            "description": "Specifies the page number of the page",
+            "in": "query",
+            "type": "ineger"
+          },
+          {
+            "name": "sort",
+            "description": "Sort the returned records",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sort",
+            "description": "Sort the returned records",
+            "in": "query",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "order"
+              ]
+            }
+          },
+          {
+            "name": "recordIds",
+            "description": "Returns a specified record",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "viewId",
+            "description": "When the viewId is not explicitly specified, all records and fields are returned.",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "fields",
+            "description": "The returned record results are limited to the specified fields.cURL Query",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterByFormula",
+            "description": "Use smart formulas to filter records.The formula can be used for reference《Formula Overview》",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "cellFormat",
+            "description": "The type of the value in the cell. The default is json. When string is specified, all values will be automatically converted to string format",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "json",
+              "string"
+            ],
+            "default": "json"
+          },
+          {
+            "name": "fieldKey",
+            "description": "The key used when querying fields and returning fields",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "name",
+              "id"
+            ],
+            "default": "name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "records": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Record"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [ "record" ],
+        "operationId": "RecordCreate",
+        "summary": "Create a new record in a specific datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "viewId",
+            "description": "When the viewId is not explicitly specified, all records and fields are returned.",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "description": "The record data to be created, including the recorded fields and field values.",
+            "in": "body",
+            "name": "records",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fieldKey",
+            "description": "The key used when querying fields and returning fields",
+            "in": "body",
+            "type": "string",
+            "enum": [
+              "name",
+              "id"
+            ],
+            "default": "name"
+          }
+        ],
+        
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "records": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Record"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      },
+
+      "patch": {
+        "tags": [ "record" ],
+        "operationId": "RecordUpdate",
+        "summary": "Update an existing record in a specific datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "viewId",
+            "description": "When the viewId is not explicitly specified, all records and fields are returned.",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "description": "The record data to be created, including the recorded fields and field values.",
+            "in": "body",
+            "name": "records",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "recordId": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "recordId",
+                  "fields"
+                ]
+              }
+            }
+          },
+          {
+            "name": "fieldKey",
+            "description": "The key used when querying fields and returning fields",
+            "in": "body",
+            "type": "string",
+            "enum": [
+              "name",
+              "id"
+            ],
+            "default": "name"
+          }
+        ],
+        
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "records": {
+                          "schema": {
+                            "$ref": "#/components/schemas/Record"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      },
+
+      "delete": {
+        "tags": [ "record" ],
+        "operationId": "RecordDelete",
+        "summary": "Delete an existing record in a specific datasheet",
+        "parameters": [
+          {
+            "name": "datasheetId",
+            "description": "AITable Datasheet ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "recordIds",
+            "description": "ID of the record to be deleted",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data sheet not found"
+          }
+        }
+      }
+    }
+  },
+
+  "tags": [
+    {
+      "name": "node",
+      "description": "Manager nodes"
+    },
+    {
+      "name": "datasheet",
+      "description": "Manager datasheets"
+    },
+    {
+      "name": "record",
+      "description": "Manager records"
+    },
+    {
+      "name": "field",
+      "description": "Manager fields"
+    },
+    {
+      "name": "view",
+      "description": "Manager views"
+    },
+    {
+      "name": "space",
+      "description": "Manager spaces"
+    }
+  ]
+}
