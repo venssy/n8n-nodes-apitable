@@ -94,6 +94,14 @@ export class ApitableOperationsCollector extends OperationsCollector {
         }
       }
     })
+
+    // fix fill in default value
+    operation1.fields.forEach(field => {
+      const param = operation.parameters?.find(param => (param as any).name == field.name) as any | undefined
+      if (param && param.default != undefined) {
+        field.default = param.default
+      }
+    })
       
     // turn requiredless fields into additional fields
     const additionalFields = operation1.fields.filter(field => field.required != true && field.routing?.send?.type != "body" && field.name != 'operation').map(field => {

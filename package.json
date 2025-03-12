@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-apitable",
-  "version": "0.0.5b",
+  "version": "0.0.6b",
   "description": "Apitable integration for n8n",
   "keywords": [
     "n8n-community-node-package",
