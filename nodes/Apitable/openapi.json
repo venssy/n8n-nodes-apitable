@@ -264,7 +264,12 @@
             "description": "The creation time of the record, in timestamp format",
             "type": "string",
             "enum": [
-              "Grid", "Gallery", "Kanban", "Gantt", "Calendar", "Architecture"
+              "Grid",
+              "Gallery",
+              "Kanban",
+              "Gantt",
+              "Calendar",
+              "Architecture"
             ]
           }
         },
@@ -278,13 +283,13 @@
       }
     }
   },
-
-
   "paths": {
     "/spaces": {
       "get": {
         "summary": "Get the List of Spaces",
-        "tags": [ "space" ],
+        "tags": [
+          "space"
+        ],
         "operationId": "SpaceList",
         "responses": {
           "200": {
@@ -312,11 +317,12 @@
         }
       }
     },
-
     "/spaces/{spaceId}/nodes": {
       "get": {
         "summary": "Get the List of Nodes for a specific Space",
-        "tags": [ "node" ],
+        "tags": [
+          "node"
+        ],
         "operationId": "NodeList",
         "parameters": [
           {
@@ -389,11 +395,12 @@
         }
       }
     },
-
     "/spaces/{spaceId}/nodes/{nodeId}": {
       "get": {
         "summary": "Get node info",
-        "tags": [ "node" ],
+        "tags": [
+          "node"
+        ],
         "operationId": "NodeInfo",
         "produces": [
           "application/json"
@@ -435,12 +442,13 @@
         }
       }
     },
-
     "/spaces/{spaceId}/datasheets": {
       "post": {
         "summary": "Create a datasheet with the specified fields in the specified space.",
         "operationId": "DatasheetList",
-        "tags": [ "datasheet" ],
+        "tags": [
+          "datasheet"
+        ],
         "parameters": [
           {
             "name": "spaceId",
@@ -505,10 +513,11 @@
         }
       }
     },
-
     "/datasheets/{datasheetId}/views": {
       "get": {
-        "tags": [ "view" ],
+        "tags": [
+          "view"
+        ],
         "operationId": "ViewList",
         "summary": "Get all views for a specific datasheet",
         "parameters": [
@@ -546,11 +555,11 @@
         }
       }
     },
-
-    
     "/datasheets/{datasheetId}/fields": {
       "get": {
-        "tags": [ "field" ],
+        "tags": [
+          "field"
+        ],
         "operationId": "FieldList",
         "summary": "Get information about all fields in the specified datasheet",
         "parameters": [
@@ -597,10 +606,11 @@
         }
       }
     },
-
     "/spaces/{spaceId}/datasheets/{datasheetId}/fields": {
       "post": {
-        "tags": [ "field" ],
+        "tags": [
+          "field"
+        ],
         "operationId": "FieldCreate",
         "summary": "Create a new field in a specific datasheet",
         "parameters": [
@@ -624,7 +634,7 @@
             "in": "body",
             "type": "string"
           },
-           {
+          {
             "name": "type",
             "description": "Field types, possible values are listed in the section Field Types and Attributes",
             "example": "SingleText",
@@ -659,14 +669,13 @@
             ],
             "type": "string"
           },
-           {
+          {
             "name": "property",
             "in": "body",
             "description": "Field attributes.Different fields have different attributes, see the section Field Types and Attributes for details on the attributes of various fields",
             "type": "object"
           }
         ],
-        
         "responses": {
           "200": {
             "description": "Success",
@@ -689,10 +698,11 @@
         }
       }
     },
-
     "/spaces/{spaceId}/datasheets/{datasheetId}/fields/{fieldId}": {
       "delete": {
-        "tags": [ "field" ],
+        "tags": [
+          "field"
+        ],
         "operationId": "FieldDelete",
         "summary": "Delete an existing field in a specific datasheet",
         "parameters": [
@@ -718,7 +728,6 @@
             "type": "string"
           }
         ],
-        
         "responses": {
           "200": {
             "description": "Success",
@@ -741,10 +750,11 @@
         }
       }
     },
-
     "/datasheets/{datasheetId}/records": {
       "get": {
-        "tags": [ "record" ],
+        "tags": [
+          "record"
+        ],
         "operationId": "RecordList",
         "summary": "Get all records for a specific datasheet",
         "parameters": [
@@ -759,19 +769,22 @@
             "name": "pageSize",
             "description": "How many records are returned per page",
             "in": "query",
-            "type": "integer"
+            "type": "integer",
+            "default": "100"
           },
           {
             "name": "maxRecords",
             "description": "How many records are returned per page",
             "in": "query",
-            "type": "integer"
+            "type": "integer",
+            "default": "1000"
           },
           {
             "name": "pageNum",
             "description": "Specifies the page number of the page",
             "in": "query",
-            "type": "integer"
+            "type": "integer",
+            "default": "1"
           },
           {
             "name": "sort",
@@ -823,7 +836,7 @@
           },
           {
             "name": "filterByFormula",
-            "description": "Use smart formulas to filter records.The formula can be used for reference《Formula Overview》",
+            "description": "Use smart formulas to filter records. eg: {used} >  0 . The formula can be used for reference https://help.vika.cn/docs/guide/tutorial-getting-started-with-formulas",
             "in": "query",
             "type": "string"
           },
@@ -879,7 +892,9 @@
         }
       },
       "post": {
-        "tags": [ "record" ],
+        "tags": [
+          "record"
+        ],
         "operationId": "RecordCreate",
         "summary": "Create a new record in a specific datasheet",
         "parameters": [
@@ -901,19 +916,17 @@
             "in": "body",
             "name": "records",
             "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "fields": {
-                    "type": "object"
-                  }
-                },
-                "required": [
-                  "fields"
-                ]
-              }
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fields": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "fields"
+              ]
             }
           },
           {
@@ -928,7 +941,6 @@
             "default": "name"
           }
         ],
-        
         "responses": {
           "200": {
             "description": "Success",
@@ -957,9 +969,10 @@
           }
         }
       },
-
       "patch": {
-        "tags": [ "record" ],
+        "tags": [
+          "record"
+        ],
         "operationId": "RecordUpdate",
         "summary": "Update an existing record in a specific datasheet",
         "parameters": [
@@ -981,23 +994,21 @@
             "in": "body",
             "name": "records",
             "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "recordId": {
-                    "type": "string"
-                  },
-                  "fields": {
-                    "type": "object"
-                  }
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recordId": {
+                  "type": "string"
                 },
-                "required": [
-                  "recordId",
-                  "fields"
-                ]
-              }
+                "fields": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "recordId",
+                "fields"
+              ]
             }
           },
           {
@@ -1012,7 +1023,6 @@
             "default": "name"
           }
         ],
-        
         "responses": {
           "200": {
             "description": "Success",
@@ -1041,9 +1051,10 @@
           }
         }
       },
-
       "delete": {
-        "tags": [ "record" ],
+        "tags": [
+          "record"
+        ],
         "operationId": "RecordDelete",
         "summary": "Delete an existing record in a specific datasheet",
         "parameters": [
@@ -1059,12 +1070,12 @@
             "description": "ID of the record to be deleted",
             "in": "query",
             "type": "array",
+            "required": true,
             "items": {
               "type": "string"
             }
           }
         ],
-        
         "responses": {
           "200": {
             "description": "Success",
@@ -1088,7 +1099,6 @@
       }
     }
   },
-
   "tags": [
     {
       "name": "node",
